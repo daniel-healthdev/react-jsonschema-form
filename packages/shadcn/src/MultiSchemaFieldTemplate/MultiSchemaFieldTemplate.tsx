@@ -7,7 +7,7 @@ export default function MultiSchemaFieldTemplate<
   F extends FormContextType = any,
 >({ selector, optionSchemaField }: MultiSchemaFieldTemplateProps<T, S, F>) {
   return (
-    <div className={cn('p-4 border rounded-md bg-background shadow-sm')}>
+    <div className={cn('p-4 border rounded-md bg-background shadow-xs')}>
       <div className={cn('mb-4')}>{selector}</div>
       {optionSchemaField}
     </div>

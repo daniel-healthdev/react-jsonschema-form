@@ -70,7 +70,7 @@ export default function WrapIfAdditionalTemplate<
                 name={keyId}
                 onBlur={!readonly ? handleBlur : undefined}
                 type='text'
-                className='mt-1 w-full border shadow-sm'
+                className='mt-1 w-full border shadow-xs'
               />
             </div>
           </div>
