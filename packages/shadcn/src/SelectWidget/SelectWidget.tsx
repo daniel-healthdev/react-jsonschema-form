@@ -9,7 +9,7 @@ import {
 } from '@rjsf/utils';
 
 import { FancyMultiSelect } from '../components/ui/fancy-multi-select';
-import { FancySelect } from '../components/ui/fancy-select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { cn } from '../lib/utils';
 
 /** The `SelectWidget` is a widget for rendering dropdowns.
@@ -57,21 +57,27 @@ export default function SelectWidget<
   return (
     <div className='p-0.5'>
       {!multiple ? (
-        <FancySelect
-          items={items}
-          selected={enumOptionsIndexForValue<S>(value ?? defaultValue, enumOptions, false) as unknown as string}
+        <Select
           onValueChange={(selectedValue) => {
             onChange(enumOptionsValueForIndex<S>(selectedValue, enumOptions, optEmptyValue));
           }}
-          autoFocus={autofocus}
-          disabled={disabled || readonly}
+          value={enumOptionsIndexForValue<S>(value ?? defaultValue, enumOptions, false) as unknown as string}
           required={required}
-          placeholder={placeholder}
-          className={cn({ 'border-destructive': rawErrors.length > 0 })}
-          onFocus={_onFancyFocus}
-          onBlur={_onFancyBlur}
-          ariaDescribedby={ariaDescribedByIds<T>(id)}
-        />
+        >
+          <SelectTrigger
+            className={cn('w-full', { 'border-destructive': rawErrors.length > 0 })}
+            aria-describedby={ariaDescribedByIds<T>(id)}
+          >
+            <SelectValue placeholder={placeholder} />
+          </SelectTrigger>
+          <SelectContent>
+            {items.map((item: any) => (
+              <SelectItem key={item.value} value={item.value} disabled={item.disabled}>
+                {item.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       ) : (
         <FancyMultiSelect
           id={id}
