@@ -82,6 +82,7 @@
     "tw-animate-css": "^1.3.6"
   },
   "dependencies": {
+    "@base-ui-components/react": "^1.0.0-beta.2",
     "@radix-ui/react-checkbox": "^1.3.2",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-icons": "^1.3.0",
