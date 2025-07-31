@@ -13,7 +13,7 @@ export default function SubmitButton<T = any, S extends StrictRJSFSchema = RJSFS
   }
   return (
     <div>
-      <Button type='submit' {...submitButtonProps} className='my-2'>
+      <Button type='submit' {...submitButtonProps} className='my-2 w-full'>
         {submitText}
       </Button>
     </div>
