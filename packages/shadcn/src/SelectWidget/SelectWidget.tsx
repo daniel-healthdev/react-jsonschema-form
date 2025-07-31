@@ -1,14 +1,5 @@
-import {
-  ariaDescribedByIds,
-  enumOptionsIndexForValue,
-  enumOptionsValueForIndex,
-  FormContextType,
-  RJSFSchema,
-  StrictRJSFSchema,
-  WidgetProps,
-} from '@rjsf/utils';
+import { ariaDescribedByIds, FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
 
-import { FancyMultiSelect } from '../components/ui/fancy-multi-select';
 import {
   Select,
   SelectContent,
@@ -35,53 +26,104 @@ export default function SelectWidget<
   required,
   disabled,
   readonly,
+  autofocus,
+  onFocus,
+  onBlur,
   value,
   multiple,
-  autofocus,
   onChange,
-  onBlur,
-  onFocus,
-  defaultValue,
   placeholder,
   rawErrors = [],
 }: WidgetProps<T, S, F>) {
-  const { enumOptions, enumDisabled, emptyValue: optEmptyValue } = options;
-
-  const _onFancyFocus = () => {
-    onFocus(id, enumOptionsValueForIndex<S>(value, enumOptions, optEmptyValue));
-  };
-
-  const _onFancyBlur = () => {
-    onBlur(id, enumOptionsValueForIndex<S>(value, enumOptions, optEmptyValue));
-  };
+  const { enumOptions, enumDisabled, emptyValue, placeholder: optPlaceholder } = options;
 
   const items = (enumOptions as any)?.map(({ value, label }: any, index: number) => ({
-    value: multiple ? value : index.toString(),
+    value: value,
     label: label,
     index,
     disabled: Array.isArray(enumDisabled) && enumDisabled.includes(value),
   }));
 
-  const currentValue = enumOptionsIndexForValue<S>(value ?? defaultValue, enumOptions, false) as unknown as string;
+  const _onFocus = () => {
+    onFocus(id, value);
+  };
+
+  const _onBlur = () => {
+    onBlur(id, value);
+  };
+
+  function renderMultipleSelectedValues(value: unknown[]) {
+    if (value.length === 0) {
+      return <span className='text-muted-foreground'>{placeholder || optPlaceholder}</span>;
+    }
+
+    const firstValue = value[0];
+    const additionalValues = value.length > 1 ? ` (+${value.length - 1} more)` : '';
+    return firstValue + additionalValues;
+  }
 
   return (
     <div className='p-0.5'>
       {!multiple ? (
         <Select
-          items={items}
+          id={id}
+          disabled={disabled}
+          readOnly={readonly}
+          items={enumOptions}
           onValueChange={(selectedValue) => {
-            onChange(enumOptionsValueForIndex<S>(selectedValue as string, enumOptions, optEmptyValue));
+            onChange(selectedValue);
           }}
-          defaultValue={defaultValue}
+          value={value ?? null}
           required={required}
+          defaultValue={emptyValue}
         >
           <SelectTrigger
-            className={cn('w-full', { 'border-destructive': rawErrors.length > 0 })}
+            className={cn('w-full', {
+              'border-destructive': rawErrors.length > 0 || (!value && required),
+            })}
             aria-describedby={ariaDescribedByIds<T>(id)}
+            autoFocus={autofocus}
+            onFocus={_onFocus}
+            onBlur={_onBlur}
           >
             <SelectValue>
-              {currentValue ? undefined : <span className='text-muted-foreground'>{placeholder}</span>}
+              {(value) =>
+                value ? value : <span className='text-muted-foreground'>{placeholder || optPlaceholder}</span>
+              }
             </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectScrollUpButton />
+            {items.map((item: { value: string; label: string; disabled: boolean }) => (
+              <SelectItem key={item.value} value={item.value} disabled={item.disabled}>
+                {item.label}
+              </SelectItem>
+            ))}
+            <SelectScrollDownButton />
+          </SelectContent>
+        </Select>
+      ) : (
+        <Select
+          id={id}
+          disabled={disabled}
+          readOnly={readonly}
+          items={items}
+          multiple
+          onValueChange={(values) => {
+            onChange(values);
+          }}
+          value={value}
+          required={required}
+          defaultValue={emptyValue}
+        >
+          <SelectTrigger
+            className={cn('w-full', { 'border-destructive': rawErrors.length > 0 || (!value && required) })}
+            aria-describedby={ariaDescribedByIds<T>(id)}
+            autoFocus={autofocus}
+            onFocus={_onFocus}
+            onBlur={_onBlur}
+          >
+            <SelectValue>{renderMultipleSelectedValues}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectScrollUpButton />
@@ -93,21 +135,6 @@ export default function SelectWidget<
             <SelectScrollDownButton />
           </SelectContent>
         </Select>
-      ) : (
-        <FancyMultiSelect
-          id={id}
-          autoFocus={autofocus}
-          disabled={disabled || readonly}
-          multiple
-          className={rawErrors.length > 0 ? 'border-destructive' : ''}
-          items={items}
-          selected={value}
-          onValueChange={(values) => {
-            onChange(enumOptionsValueForIndex<S>(values, enumOptions, optEmptyValue));
-          }}
-          onFocus={_onFancyFocus}
-          onBlur={_onFancyBlur}
-        />
       )}
     </div>
   );
